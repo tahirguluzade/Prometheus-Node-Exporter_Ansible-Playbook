@@ -1,1 +1,124 @@
+---
 
+- hosts: all
+  become: true
+  vars_files:
+  - Variables/vars.yml
+  tasks:
+
+
+  - name: Checking if git already exists in the system
+    package_facts:
+      manager: "auto"
+
+  - name: Installing Git 
+    yum: 
+      name: git
+      state: present
+    when: "'git' not in ansible_facts.packages"
+  
+
+  - name: installing "lsof" command
+    yum: 
+      name: lsof
+      state: present
+    when: "'lsof' not in ansible_facts.packages"
+
+ 
+  - name: Creating node_exporter user group
+    group: name="{{ group }}"
+    become: true
+ 
+  - name: Creating node_exporter user
+    user:
+      name: "{{ user }}"
+      group: "{{ group }}"
+      system: yes
+      shell: "/sbin/nologin"
+      comment: "{{ user }} nologin User"
+      createhome: "no"
+      state: present
+  
+  
+  - name: Install "Prometheus"
+    unarchive:
+      src: "https://github.com/prometheus/prometheus/releases/download/v{{version_prometheus}}/prometheus-{{version_prometheus}}.linux-amd64.tar.gz"
+      dest: /tmp/
+      remote_src: yes  
+
+
+  - name: Copy prometheus file to /usr/local/bin
+    copy:
+      src: "/tmp/prometheus-{{version_prometheus}}.linux-amd64/"
+      dest: "/usr/local/bin/prometheus/"
+      owner: "{{ user }}"
+      group: "{{ group }}"
+      remote_src: yes
+      mode: 0755
+
+  - name: Delete "Prometheus" tmp folder
+    file:
+      path: '/tmp/prometheus-{{version_prometheus}}.linux-amd64'
+      state: absent
+
+  - name: built "prometheus service"
+    template:
+      src: /home/ansible/ansible_tutorial/Services/Prometheus.service
+      dest: /etc/systemd/system/prometheus.service
+ 
+  - name: Start prometheus service
+    service:
+      name: prometheus
+      state: started
+      enabled: yes
+
+  - name: Install "node-exporter"
+    unarchive:
+      src: "https://github.com/prometheus/node_exporter/releases/download/v{{version_node}}/node_exporter-{{version_node}}.linux-amd64.tar.gz"
+      dest: /tmp/
+      remote_src: yes
+ 
+  - name: Copy prometheus node exporter file to /usr/local/bin
+    copy:
+      src: "/tmp/node_exporter-{{version_node}}.linux-amd64/node_exporter"
+      dest: "/usr/local/bin/node_exporter"
+      owner: "{{ user }}"
+      group: "{{ group }}"
+      remote_src: yes
+      mode: 0755
+ 
+  - name: Delete node exporter tmp folder
+    file:
+      path: '/tmp/node_exporter-{{version_node}}.linux-amd64'
+      state: absent
+        
+
+  - name: Copy systemd init file
+    template:
+      src: /home/ansible/ansible_tutorial/Services/exporter.service
+      dest: /etc/systemd/system/node_exporter.service
+ 
+  - name: Start node_exporter service
+    service:
+      name: node_exporter
+      state: started
+      enabled: yes
+
+  
+  - name: Add node_exporter to the Prometheus Server
+    ansible.builtin.blockinfile:
+      path: /usr/local/bin/prometheus/prometheus.yml
+      insertafter: '^scrape_config'
+      block: |
+        #####
+          - job_name: 'node_exporter' 
+            static_configs:       
+              - targets: ['localhost:9100'] 
+    tags:
+    - tag1
+
+  - name: restart prometheus service
+    service:
+      name: prometheus
+      state: restarted
+      enabled: yes
