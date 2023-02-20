@@ -63,7 +63,7 @@
 
   - name: built "prometheus service"
     template:
-      src: /home/jenkins/Prometheus-Node-Exporter_Ansible-Playbook/services/prometheus.service
+      src: services/prometheus.service
       dest: /etc/systemd/system/prometheus.service
  
   - name: Start prometheus service
@@ -95,7 +95,7 @@
 
   - name: Copy systemd init file
     template:
-      src: /home/jenkins/Prometheus-Node-Exporter_Ansible-Playbook/services/exporter.service
+      src: services/exporter.service
       dest: /etc/systemd/system/node_exporter.service
  
   - name: Start node_exporter service
