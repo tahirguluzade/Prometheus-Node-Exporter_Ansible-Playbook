@@ -1,1 +1,9 @@
-
+---
+group: node_group
+user: nodeexporter_user
+version_prometheus: "2.42.0"
+version_node: "1.5.0"
+prometheusservice_name: "prometheus"
+nodeservice_name: "node_exporter"
+exec_command: /usr/local/bin/node_exporter
+prometheusexec_command: /usr/local/bin/prometheus/prometheus --config.file=/usr/local/bin/prometheus/prometheus.yml --storage.tsdb.path=/usr/local/bin/prometheus/data
