@@ -1,1 +1,14 @@
+[Unit]
+Description={{ prometheusservice_name }}
+Documentation=https://prometheus.io/docs/introduction/overview/
+After=network-online.target
 
+[Service]
+User={{ user }}
+Group={{ group }}
+Restart=on-failure
+ExecStart={{ prometheusexec_command }}
+
+
+[Install]
+WantedBy=multi-user.target
