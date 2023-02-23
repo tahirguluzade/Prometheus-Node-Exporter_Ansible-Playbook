@@ -1,6 +1,8 @@
 ---
-group: node_group
-user: nodeexporter_user
+group_node: node_exporter
+user_node: node_exporter
+group_prometheus: prometheus
+user_prometheus: prometheus
 version_prometheus: "2.42.0"
 version_node: "1.5.0"
 prometheusservice_name: "prometheus"
