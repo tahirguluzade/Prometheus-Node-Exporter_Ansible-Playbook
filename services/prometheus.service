@@ -4,8 +4,8 @@ Documentation=https://prometheus.io/docs/introduction/overview/
 After=network-online.target
 
 [Service]
-User={{ user }}
-Group={{ group }}
+User={{ user_prometheus }}
+Group={{ group_prometheus }}
 Restart=on-failure
 ExecStart={{ prometheusexec_command }}
 
