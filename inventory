@@ -1,2 +1,2 @@
-3.64.178.191   ansible_user=centos
-34.88.252.171  ansible_user=e.guluzade
+<ip address of your target machine>     ansible_user=<username of your target machine> 
+
