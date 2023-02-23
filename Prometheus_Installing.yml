@@ -1,0 +1,117 @@
+---
+
+- hosts: all
+  become: true
+  vars_files:
+  - variables/vars.yml
+  tasks:
+
+
+  - name: Checking if git already exists in the system
+    package_facts:
+      manager: "auto"
+    tags:
+    - tag1
+
+  - name: Installing Git 
+    yum: 
+      name: git
+      state: present
+    when: "'git' not in ansible_facts.packages"
+    tags:
+    - tag2
+  
+
+  - name: installing "lsof" command
+    yum: 
+      name: lsof
+      state: present
+    when: "'lsof' not in ansible_facts.packages"
+    tags:
+    - tag3
+ 
+
+  - name: Creating prometheus user group
+    group: name="{{ group_prometheus }}"
+    become: true
+    tags:
+    - tag4
+
+  - name: Creating prometheus user
+    user:
+      name: "{{ user_prometheus }}"
+      group: "{{ group_prometheus }}"
+      system: yes
+      shell: "/sbin/nologin"
+      comment: "{{ user_prometheus }} nologin User"
+      createhome: "no"
+      state: present
+    tags:
+    - tag5
+  
+  
+  - name: Install "Prometheus"
+    unarchive:
+      src: "https://github.com/prometheus/prometheus/releases/download/v{{version_prometheus}}/prometheus-{{version_prometheus}}.linux-amd64.tar.gz"
+      dest: /tmp/
+      remote_src: yes  
+    tags:
+    - tag6
+
+  - name: Copy prometheus file to /usr/local/bin
+    copy:
+      src: "/tmp/prometheus-{{version_prometheus}}.linux-amd64/"
+      dest: "/usr/local/bin/prometheus/"
+      owner: "{{ user_prometheus }}"
+      group: "{{ group_prometheus }}"
+      remote_src: yes
+      mode: 0755
+    tags:
+    - tag7
+
+
+  - name: Delete "Prometheus" tmp folder
+    file:
+      path: '/tmp/prometheus-{{version_prometheus}}.linux-amd64'
+      state: absent
+    tags:
+    - tag8
+
+
+  - name: built "prometheus service"
+    template:
+      src: services/prometheus.service
+      dest: /etc/systemd/system/prometheus.service
+    tags:
+    - tag9
+ 
+  - name: Start prometheus service
+    service:
+      name: prometheus
+      state: started
+      enabled: yes
+    tags:
+    - tag10
+
+
+  - name: Add node_exporter to the Prometheus Server
+    ansible.builtin.blockinfile:
+      path: /usr/local/bin/prometheus/prometheus.yml
+      insertafter: '^scrape_config'
+      block: |
+        #####
+          - job_name: 'node_exporter' 
+            static_configs:       
+              - targets: ['localhost:9100'] 
+    tags:
+    - tag11
+
+
+  
+  - name: restart prometheus service
+    service:
+      name: prometheus
+      state: restarted
+      enabled: yes
+    tags:
+    - tag12
