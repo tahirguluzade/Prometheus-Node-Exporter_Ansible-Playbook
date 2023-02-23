@@ -4,8 +4,8 @@ Wants=network-online.target
 After=network-online.target
  
 [Service]
-User={{ user }}
-Group={{ group }}
+User={{ user_node }}
+Group={{ group_node }}
 Restart=on-failure
 Type=simple
 ExecStart={{ exec_command }}
