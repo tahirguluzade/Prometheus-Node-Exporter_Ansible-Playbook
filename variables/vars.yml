@@ -3,9 +3,13 @@ group_node: node_exporter
 user_node: node_exporter
 group_prometheus: prometheus
 user_prometheus: prometheus
-version_prometheus: "2.42.0"
-version_node: "1.5.0"
+version_prometheus: "3.1.0"
+version_node: "1.8.2"
 prometheusservice_name: "prometheus"
 nodeservice_name: "node_exporter"
 exec_command: /usr/local/bin/node_exporter
 prometheusexec_command: /usr/local/bin/prometheus/prometheus --config.file=/usr/local/bin/prometheus/prometheus.yml --storage.tsdb.path=/usr/local/bin/prometheus/data
+node_exporter_hosts:
+            - 192.168.134.11
+            - 192.168.134.12
+            - 192.168.134.30
