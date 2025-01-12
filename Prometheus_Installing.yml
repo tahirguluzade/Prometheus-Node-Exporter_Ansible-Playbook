@@ -1,39 +1,14 @@
 ---
 
-- hosts: all
-  become: true
+- hosts: dev
   vars_files:
-  - variables/vars.yml
+    - variables/vars.yml
   tasks:
 
 
-  - name: Checking if git already exists in the system
-    package_facts:
-      manager: "auto"
-    tags:
-    - tag1
-
-  - name: Installing Git 
-    yum: 
-      name: git
-      state: present
-    when: "'git' not in ansible_facts.packages"
-    tags:
-    - tag2
-  
-
-  - name: installing "lsof" command
-    yum: 
-      name: lsof
-      state: present
-    when: "'lsof' not in ansible_facts.packages"
-    tags:
-    - tag3
- 
-
   - name: Creating prometheus user group
-    group: name="{{ group_prometheus }}"
-    become: true
+    group: 
+      name: "{{ group_prometheus }}"
     tags:
     - tag4
 
@@ -101,17 +76,32 @@
       block: |
         #####
           - job_name: 'node_exporter' 
-            static_configs:       
-              - targets: ['localhost:9100'] 
+            static_configs:      
+              - targets:
+                  {%for host in node_exporter_hosts%}
+                  - '{{ host }}:9100' 
+                  {%endfor%}
+    notify:  restart_prometheus
     tags:
     - tag11
 
-
-  
-  - name: restart prometheus service
-    service:
-      name: prometheus
-      state: restarted
-      enabled: yes
+  - name: Adding port to firewall
+    ansible.posix.firewalld:
+      port: 9090/tcp
+      permanent: true
+      immediate: true
+      state: enabled
     tags:
-    - tag12
+        - tag12
+
+
+  handlers:
+
+      - name: restart_prometheus
+        service:
+            name: prometheus
+            state: restarted
+            enabled: yes
+        tags:
+          - tag13
+
