@@ -45,3 +45,4 @@ Node Exporter runs on port `9100` by default.
 - [x] Run `Prometheus_Installing.yml` on the centralized Prometheus server.
 - [x] Verify Prometheus and Node Exporter integration through the browser.
 
+![Alt text](https://github.com/user-attachments/assets/3e11bb5b-ad2e-43dc-aab3-72a78c943182)
