@@ -1,14 +1,47 @@
-# Prometheus-Node-Exporter_Ansible-Playbook
+# Installing Node Exporter and Centralized Prometheus Using Ansible
 
-- **In this ansible playbook we are gonna installing Prometheus and Node Exporter in our remote server.**
-- [x] Do not forget to write ip address of your remote server to `inventory` file as weel as change `ansible_user` to username of your remote server where it will try to conncet via ssh.
-- [x] You need to add public key where ansible is running to your remote server 
-- [x] Playbook also adding Node Exporter to prometheus to integrate with it
-- [x] After succesfully installation you can go your browser and type `<ip address of remote server>:9090` , because as a default prometheus running on port number `9090`. You can also check integration of Node Exporter in Prometheus by adding `<ip address of remote server>:9090/targets`.
-- [x] To visit Node Exporter seperately add following to your browser `<ip address of remote server>:9100` (as a default it runs on port number `9100`)
-- [x] If you are using firewall, then you need to open those ports:
+This guide provides an Ansible-based solution to install and configure Prometheus and Node Exporter on remote servers. It covers deploying Node Exporter for monitoring metrics like CPU, disk, and memory usage, and setting up a centralized Prometheus server to aggregate these metrics.
+
+## Prerequisites
+
+1. Ensure you have an inventory file listing the IP addresses of your remote servers.
+2. Update the `ansible_user` in the inventory file to match the username for SSH access to your remote servers.
+
+## Steps to Install and Configure
+
+### 1. Install Node Exporter on Remote Nodes
+Run the `Node_Exporter_Installing.yml` playbook on all nodes you want to monitor. This playbook sets up Node Exporter, which collects system metrics.
+
+### 2. Set Up a Centralized Prometheus Server
+Run the `Prometheus_Installing.yml` playbook to configure a central Prometheus server. This server will gather and display metrics from all monitored nodes.
+
+### 3. Automatic Integration
+The playbook automatically integrates the Node Exporter servers with the Prometheus server, ensuring seamless monitoring.
+
+## Accessing Prometheus and Node Exporter
+
+### Prometheus Web Interface
+After installation, open your browser and navigate to:
 ```
-sudo firewall-cmd --zone=public --add-port=9090/tcp 
-sudo firewall-cmd --zone=public --add-port=9100/tcp
-sudo firewall-cmd --reload
+<IP address of Prometheus server>:9090
 ```
+Prometheus uses port `9090` by default.
+
+### Verify Node Exporter Integration
+To check if Node Exporter is successfully integrated with Prometheus, go to:
+```
+<IP address of Prometheus server>:9090/targets
+```
+
+### Access Node Exporter Metrics Directly
+To view Node Exporter metrics for a specific node, navigate to:
+```
+<IP address of remote node>:9100
+```
+Node Exporter runs on port `9100` by default.
+
+## Checklist ✅ 
+- [x] Run `Node_Exporter_Installing.yml` on all monitoring nodes.
+- [x] Run `Prometheus_Installing.yml` on the centralized Prometheus server.
+- [x] Verify Prometheus and Node Exporter integration through the browser.
+
