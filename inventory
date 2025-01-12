@@ -1,2 +1,7 @@
-<ip address of your target machine>     ansible_user=<username of your target machine> 
+[node_exporters]
+192.168.134.30
+192.168.134.11
+192.168.134.12
+[prometheus]
+192.168.134.11
 
