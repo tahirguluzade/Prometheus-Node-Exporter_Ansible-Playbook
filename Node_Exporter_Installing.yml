@@ -1,41 +1,16 @@
 ---
 
 - hosts: all
-  become: true
   vars_files:
-  - variables/vars.yml
+    - variables/vars.yml
   tasks:
 
 
-  - name: Checking if git already exists in the system
-    package_facts:
-      manager: "auto"
-    tags:
-    - tag1
-
-  - name: Installing Git 
-    yum: 
-      name: git
-      state: present
-    when: "'git' not in ansible_facts.packages"
-    tags:
-    - tag2
-  
-
-  - name: installing "lsof" command
-    yum: 
-      name: lsof
-      state: present
-    when: "'lsof' not in ansible_facts.packages"
-    tags:
-    - tag3
-
-
   - name: Creating node_exporter user group
-    group: name="{{ group_node }}"
-    become: true
+    group:
+      name: "{{ group_node }}"
     tags:
-    - tag4
+     - tag4
     
 
   - name: Creating node_exporter user
@@ -95,3 +70,12 @@
       enabled: yes
     tags:
     - tag10
+
+
+  - name: Adding port to firewall
+    ansible.posix.firewalld:
+      port: 9100/tcp
+      permanent: true
+      immediate: true
+      state: enabled
+
